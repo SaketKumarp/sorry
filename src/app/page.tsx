@@ -21,18 +21,44 @@ export default function SorryNishtha() {
   const [viewportH, setViewportH] = useState(0);
   const [ribbons, setRibbons] = useState<Ribbon[]>([]);
 
-  // 🚫 NO button escape (desktop + mobile)
+  // 🚫 Move NO button without overlapping YES
   const moveNoButton = () => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    const maxX = vw / 2 - 90;
-    const maxY = vh / 2 - 120;
+    const maxX = vw / 2 - 100;
+    const maxY = vh / 2 - 140;
 
-    setNoPos({
-      x: Math.floor(Math.random() * maxX * 2) - maxX,
-      y: Math.floor(Math.random() * maxY * 2) - maxY,
-    });
+    let newX = 0;
+    let newY = 0;
+
+    // YES button position
+    let yesX = 0;
+    let yesY = 0;
+
+    if (yesButtonRef.current) {
+      const rect = yesButtonRef.current.getBoundingClientRect();
+      yesX = rect.left + rect.width / 2 - vw / 2;
+      yesY = rect.top + rect.height / 2 - vh / 2;
+    }
+
+    const MIN_DISTANCE = 140; // safe gap
+
+    // Try multiple times to find a safe spot
+    for (let i = 0; i < 10; i++) {
+      const x = Math.floor(Math.random() * maxX * 2) - maxX;
+      const y = Math.floor(Math.random() * maxY * 2) - maxY;
+
+      const distance = Math.hypot(x - yesX, y - yesY);
+
+      if (distance > MIN_DISTANCE) {
+        newX = x;
+        newY = y;
+        break;
+      }
+    }
+
+    setNoPos({ x: newX, y: newY });
   };
 
   // ✅ YES click
@@ -70,7 +96,7 @@ export default function SorryNishtha() {
             </p>
 
             <div className="relative flex justify-center gap-4 sm:gap-6 h-32">
-              {/* ✅ YES BUTTON */}
+              {/* ✅ YES */}
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -81,14 +107,13 @@ export default function SorryNishtha() {
                   className="px-8 py-3 sm:px-10 sm:py-4 rounded-2xl text-lg font-semibold
                              bg-gradient-to-r from-emerald-400 to-green-500
                              shadow-lg shadow-green-400/40
-                             hover:shadow-xl hover:shadow-green-500/50
-                             transition-all"
+                             hover:shadow-xl hover:shadow-green-500/50"
                 >
                   Yes 💚
                 </Button>
               </motion.div>
 
-              {/* ❌ NO BUTTON (mouse + touch + pointer safe) */}
+              {/* ❌ NO (never overlaps YES) */}
               <motion.div
                 onMouseEnter={moveNoButton}
                 onTouchStart={moveNoButton}
@@ -110,7 +135,7 @@ export default function SorryNishtha() {
           </>
         ) : (
           <>
-            {/* 🎉 RIBBON BURST */}
+            {/* 🎉 Ribbons */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
               {ribbons.map((r) => (
                 <motion.div
@@ -136,7 +161,7 @@ export default function SorryNishtha() {
               ))}
             </div>
 
-            {/* 💖 POPUP CARD */}
+            {/* 💖 Card */}
             <motion.div
               initial={{ scale: 0.6, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
