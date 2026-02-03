@@ -14,7 +14,8 @@ type Ribbon = {
 export default function SorryNishtha() {
   const yesButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  const [noPos, setNoPos] = useState({ x: 0, y: 0 });
+  // ✅ Start NO button away from YES
+  const [noPos, setNoPos] = useState({ x: 140, y: 50 });
   const [accepted, setAccepted] = useState(false);
 
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
@@ -29,10 +30,9 @@ export default function SorryNishtha() {
     const maxX = vw / 2 - 100;
     const maxY = vh / 2 - 140;
 
-    let newX = 0;
-    let newY = 0;
+    let newX = noPos.x;
+    let newY = noPos.y;
 
-    // YES button position
     let yesX = 0;
     let yesY = 0;
 
@@ -42,16 +42,14 @@ export default function SorryNishtha() {
       yesY = rect.top + rect.height / 2 - vh / 2;
     }
 
-    const MIN_DISTANCE = 140; // safe gap
+    const MIN_DISTANCE = 150;
 
     // Try multiple times to find a safe spot
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 12; i++) {
       const x = Math.floor(Math.random() * maxX * 2) - maxX;
       const y = Math.floor(Math.random() * maxY * 2) - maxY;
 
-      const distance = Math.hypot(x - yesX, y - yesY);
-
-      if (distance > MIN_DISTANCE) {
+      if (Math.hypot(x - yesX, y - yesY) > MIN_DISTANCE) {
         newX = x;
         newY = y;
         break;
@@ -113,7 +111,7 @@ export default function SorryNishtha() {
                 </Button>
               </motion.div>
 
-              {/* ❌ NO (never overlaps YES) */}
+              {/* ❌ NO (safe from start + never overlaps) */}
               <motion.div
                 onMouseEnter={moveNoButton}
                 onTouchStart={moveNoButton}
