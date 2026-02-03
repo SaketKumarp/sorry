@@ -1,65 +1,154 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+type Ribbon = {
+  id: number;
+  offsetX: number;
+  duration: number;
+};
+
+export default function SorryNishtha() {
+  const yesButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  const [noPos, setNoPos] = useState({ x: 0, y: 0 });
+  const [accepted, setAccepted] = useState(false);
+
+  const [origin, setOrigin] = useState({ x: 0, y: 0 });
+  const [viewportH, setViewportH] = useState(0);
+  const [ribbons, setRibbons] = useState<Ribbon[]>([]);
+
+  const moveNoButton = () => {
+    const maxX = window.innerWidth / 2 - 80;
+    const maxY = window.innerHeight / 2 - 80;
+
+    setNoPos({
+      x: Math.floor(Math.random() * maxX * 2) - maxX,
+      y: Math.floor(Math.random() * maxY * 2) - maxY,
+    });
+  };
+
+  const handleYesClick = () => {
+    if (!yesButtonRef.current) return;
+
+    const rect = yesButtonRef.current.getBoundingClientRect();
+
+    setOrigin({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    });
+
+    setViewportH(window.innerHeight);
+
+    setRibbons(
+      Array.from({ length: 30 }, (_, i) => ({
+        id: i,
+        offsetX: (Math.random() - 0.5) * 320,
+        duration: 1.8 + Math.random() * 1.5,
+      })),
+    );
+
+    setAccepted(true);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-purple-300">
+      <div className="bg-white/80 backdrop-blur p-8 rounded-3xl shadow-2xl text-center w-[380px] relative">
+        {!accepted ? (
+          <>
+            <h1 className="text-2xl font-bold mb-3">Hey Nishtha 🥺</h1>
+            <p className="mb-8 text-gray-700">
+              I am really sorry. Will you forgive me?
+            </p>
+
+            <div className="relative flex justify-center gap-6 h-28">
+              {/* ✅ YES BUTTON */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  ref={yesButtonRef}
+                  onClick={handleYesClick}
+                  className="px-8 py-3 rounded-2xl text-lg font-semibold
+                             bg-gradient-to-r from-emerald-400 to-green-500
+                             shadow-lg shadow-green-400/40
+                             hover:shadow-xl hover:shadow-green-500/50
+                             transition-all"
+                >
+                  Yes 💚
+                </Button>
+              </motion.div>
+
+              {/* ❌ NO BUTTON */}
+              <motion.div
+                onMouseEnter={moveNoButton}
+                animate={{ x: noPos.x, y: noPos.y }}
+                transition={{ type: "spring", stiffness: 350 }}
+                className="absolute"
+              >
+                <Button
+                  variant="destructive"
+                  className="px-8 py-3 rounded-2xl text-lg font-semibold
+                             bg-gradient-to-r from-red-400 to-rose-500
+                             shadow-lg shadow-red-400/40"
+                >
+                  No 😤
+                </Button>
+              </motion.div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* 🎉 Ribbons */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+              {ribbons.map((r) => (
+                <motion.div
+                  key={r.id}
+                  initial={{
+                    x: origin.x,
+                    y: origin.y,
+                    scale: 0,
+                    opacity: 1,
+                  }}
+                  animate={{
+                    x: origin.x + r.offsetX,
+                    y: viewportH + 120,
+                    rotate: 360,
+                    scale: 1,
+                  }}
+                  transition={{
+                    duration: r.duration,
+                    ease: "easeOut",
+                  }}
+                  className="absolute w-3 h-8 bg-pink-400 rounded-full"
+                />
+              ))}
+            </div>
+
+           
+            <motion.div
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 180 }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+              <Card className="rounded-3xl shadow-2xl border-0 bg-white">
+                <CardContent className="p-8 text-center">
+                  <h1 className="text-3xl font-bold mb-3">Party Time 🎉</h1>
+                  <p className="text-gray-700 text-lg">
+                    Thanks kachu kachu maaf krne ke liye 💖
+                    <br />
+                    Abki baar last time pakka 😌
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
